@@ -80,22 +80,37 @@ list<Process> fifo(pqueue_arrival workload) {
   return complete;
 }
 
+
 list<Process> sjf(pqueue_arrival workload) {
-  //by default if tie, pqueue_arrival will already prioritized the ones with shorter duration, which is already setted up for sjf
   list<Process> complete;
-  int time = 0; 
-  while (!workload.empty()) {
-    Process p = workload.top();
-    // if (cur == NULL){
-    //   time = p.arrival; //initialize time to keep track of time flow, avoid edge case where first process arrival != 0
-    //   cur = p;
-    // }
-    p.first_run = getMax(time, p.arrival);
-    p.completion = p.first_run + p.duration;
-    time = p.completion;
-    complete.push_back(p);
-    workload.pop();
+  pqueue_duration ready_queue;
+  int current_time = 0;
+  
+  while (!workload.empty() || !ready_queue.empty()) {
+    while (!workload.empty() && workload.top().arrival <= current_time) {
+      Process p = workload.top();
+      ready_queue.push(p);
+      workload.pop();
+    }
+    
+    if (ready_queue.empty() && !workload.empty()) {
+      current_time = workload.top().arrival;
+      continue;
+    }
+    
+    if (!ready_queue.empty()) {
+      Process p = ready_queue.top();
+      ready_queue.pop();
+      
+      p.first_run = current_time;
+      p.completion = current_time + p.duration;
+      
+      current_time = p.completion;
+      
+      complete.push_back(p);
+    }
   }
+  
   return complete;
 }
 
