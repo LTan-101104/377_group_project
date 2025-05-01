@@ -10,6 +10,8 @@ struct Process {
   int first_run;
   int duration;
   int completion;
+  int remain_time_on_slice; // for MLFQ to avoid anti-gaming
+  int time_demand; // actual time demanded on MLFQ 
 };
 
 class ArrivalComparator { //compare by arrival time

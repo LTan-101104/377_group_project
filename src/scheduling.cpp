@@ -1,7 +1,6 @@
 #include <scheduling.h>
 #include <fstream>
 #include <iostream>
-#include <list>
 #include <sstream>
 #include <queue>
 #include <string>
@@ -31,6 +30,7 @@ pqueue_arrival read_workload(string filename) { //TODO: recheck
   return workload;
 }
 
+//TODO: modify this and workload file to include time demanded
 void show_workload(pqueue_arrival workload) {
   pqueue_arrival xs = workload;
   cout << "Workload:" << endl;
@@ -52,6 +52,57 @@ void show_processes(list<Process> processes) {
     xs.pop_front();
   }
 }
+
+//TODO: implement MLFQ scheduling
+/*
+-Parameters:
+  -workload: a priority queue of processes sorted by arrival time (priority queue on arrival time)
+  - time_reboost: times between each reboost (push all processes to highest queue)
+  - num_queues: number of queues used (0 being the highest priority)
+  - time_slice: time_slice for each queue
+
+- the choice in each queue is the same as in RR implementation
+- after processing a process, reset cur_queue_no to 0
+- input format of a workload line <arrival_time> <duration>
+
+--> return: list<Process>
+*/
+
+
+list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
+  list<Process> complete;
+  vector<std::queue<Process>> list_queues; // container for all queues
+  //Assign queues
+  for (int i = 0; i < num_queues; i++){
+    std::queue<Process> cur_queue;
+    list_queues.push_back(cur_queue);
+    cout << "queue num" << i << "created";
+  }
+
+  int time = 0; // track time flow
+  while (!workload.empty() || !check_all_queues_empty(list_queues)){
+    //keep running algorithm
+  }
+}
+
+// check if all queues are empty
+bool check_all_queues_empty(vector<queue<Process>> queues) 
+{
+  for (auto & cur : queues){
+    if (!cur.empty()){
+      return False;
+    }
+  }
+  return True;
+}
+
+//run RR on current queue
+//! main helper, like rr, but the time taken may be less than time_slice but not completed
+void rr_current_queue(queue<Process> cur_queue, int time_slice){
+  
+
+}
+
 
 int getMax(int a1, int a2){
   if (a1 < a2){
@@ -156,16 +207,16 @@ list<Process> stcf(pqueue_arrival workload) {
   return complete;
 }
 
-list<Process> rr(pqueue_arrival workload) {
-  list<Process> complete;
-  std::queue<Process> ready_queue;
+list<Process> rr(pqueue_arrival workload) {//workload is a heap sorted by arrival time
+  list<Process> complete; //completed list of Processes
+  std::queue<Process> ready_queue; 
   int time = 0;
   while (!workload.empty() || !ready_queue.empty()) {
-      while (!workload.empty() && workload.top().arrival <= time) {
+      while (!workload.empty() && workload.top().arrival <= time) {//move all from workload to ready_queue?
           ready_queue.push(workload.top());
           workload.pop();
       }
-      if (!ready_queue.empty()) {
+      if (!ready_queue.empty()) {/
           Process current = ready_queue.front();
           ready_queue.pop();
           if (current.first_run == -1) {
@@ -185,6 +236,9 @@ list<Process> rr(pqueue_arrival workload) {
   }
   return complete;
 }
+
+
+
 
 float avg_turnaround(list<Process> processes) {
   //turnaround = completion time - arrival time
