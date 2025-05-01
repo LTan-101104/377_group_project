@@ -10,7 +10,7 @@ DEBUG = -DDEBUGMODE
 
 IDIR = include
 CC = g++
-CFLAGS = -I$(IDIR) -I/opt/homebrew/include -Wall $(DEBUG) -Wextra -g -pthread -std=c++14
+CFLAGS = -I$(IDIR) -I/opt/homebrew/include -Wall $(DEBUG) -Wextra -g -pthread -std=c++17
 ODIR = obj
 SDIR = src
 LDIR = lib
