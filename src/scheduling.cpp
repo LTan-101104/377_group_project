@@ -70,8 +70,10 @@ void show_processes(list<Process> processes) {
 
 
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
+
   list<Process> complete;
   vector<std::queue<Process>> list_queues; // container for all queues
+
   //Assign queues
   for (int i = 0; i < num_queues; i++){
     std::queue<Process> cur_queue;
@@ -80,8 +82,45 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
   }
 
   int time = 0; // track time flow
+  int time_since_reboost = 0;
+
   while (!workload.empty() || !check_all_queues_empty(list_queues)){
+    //check if need to reboost
+    //!Assuming reboost and adding new processes will happen at the same time and not cost time
+    if (time_since_reboost >= time_reboost){
+      time_since_reboost = 0;
+      for (int i = 1; i < num_queues; i ++){
+        while (!list_queues[i].empty()){
+          list_queues[0].push(list_queues[i].front());
+          list_queues[i].pop();
+        }
+      }
+    }
+
     //keep running algorithm
+    //move all valid workload to the highest queue
+    while (!workload.empty() && workload.top().arrival <= time){
+      list_queues[0].push(workload.top());
+      workload.pop();
+    }
+
+    if (!check_all_queues_empty(list_queues)){
+      int highest = getHighestPriorityQueue(list_queues);
+      if (highest == -1){
+        time ++;
+        time_since_reboost ++;
+        continue;
+      }
+
+      // TODO: run rr on found queue, update any process that is pushed down as well, this should manage only 1 PROCESS only because after that there might be incoming processes that need to be dealt with first
+      //TODO: update time and time_since_reboost accordingly
+      //TODO: update priority of process, or pop out if done accordingly
+      //add any new incoming workload during processing
+      while (!workload.empty() && workload.top().arrival <= time){
+        list_queues[0].push(workload.top());
+        workload.pop();
+      }
+    }
   }
 }
 
@@ -96,11 +135,16 @@ bool check_all_queues_empty(vector<queue<Process>> queues)
   return True;
 }
 
-//run RR on current queue
-//! main helper, like rr, but the time taken may be less than time_slice but not completed
-void rr_current_queue(queue<Process> cur_queue, int time_slice){
-  
-
+//find the index of the highest priority queue which is not empty
+int getHighestPriorityQueue(vector<queue<Process>> queues){
+  int res =-1;
+  for (int i = 0; i < queues.size(); i++){
+    if (!queues[i].empty()){
+      res = i;
+      break;
+    }
+  }
+  return res;
 }
 
 
