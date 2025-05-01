@@ -1,22 +1,22 @@
-_DEPS = scheduling.h
-_OBJ = scheduling.o
-_MOBJ = main_scheduling.o
+_DEPS = my_malloc.h
+_OBJ = my_malloc.o
+_MOBJ = main.o
 _TOBJ = test.o
 
-APPBIN = scheduling_app
-TESTBIN = scheduling_test
+APPBIN = allocator_app
+TESTBIN = allocator_test
 
 DEBUG = -DDEBUGMODE
 
 IDIR = include
 CC = g++
-CFLAGS = -I$(IDIR) -Wall $(DEBUG) -Wextra -g -pthread
+CFLAGS = -I$(IDIR) -I/opt/homebrew/include -Wall $(DEBUG) -Wextra -g -pthread -std=c++14
 ODIR = obj
 SDIR = src
 LDIR = lib
 TDIR = test
 LIBS = -lm
-XXLIBS = $(LIBS) -lstdc++ -lgtest -lgtest_main -lpthread
+XXLIBS = $(LIBS) -L/opt/homebrew/lib -lstdc++ -lgtest -lgtest_main -lpthread
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 MOBJ = $(patsubst %,$(ODIR)/%,$(_MOBJ))
