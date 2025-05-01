@@ -1,10 +1,10 @@
-_DEPS = my_malloc.h
-_OBJ = my_malloc.o
-_MOBJ = main.o
+_DEPS = scheduling.h
+_OBJ = scheduling.o
+_MOBJ = main_scheduling.o
 _TOBJ = test.o
 
-APPBIN = allocator_app
-TESTBIN = allocator_test
+APPBIN = scheduling_app
+TESTBIN = scheduling_test
 
 DEBUG = -DDEBUGMODE
 
@@ -20,7 +20,7 @@ XXLIBS = $(LIBS) -L/opt/homebrew/lib -lstdc++ -lgtest -lgtest_main -lpthread
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 MOBJ = $(patsubst %,$(ODIR)/%,$(_MOBJ))
-TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ)) 
+TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
