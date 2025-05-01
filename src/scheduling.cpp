@@ -20,9 +20,10 @@ pqueue_arrival read_workload(string filename) { //TODO: recheck
   while(std::getline(file, line)){
     std::istringstream iss(line);
     Process p;
-    if (iss >> p.arrival >> p.duration){
+    if (iss >> p.arrival >> p.duration >> p.time_demand){
       p.first_run = -1; //initialize first run
       p.completion = -1;
+      p.remain_time_on_slice = -1; //initialize remain time on slice
       workload.push(p);
     }
   }
@@ -30,13 +31,12 @@ pqueue_arrival read_workload(string filename) { //TODO: recheck
   return workload;
 }
 
-//TODO: modify this and workload file to include time demanded
 void show_workload(pqueue_arrival workload) {
   pqueue_arrival xs = workload;
   cout << "Workload:" << endl;
   while (!xs.empty()) {
     Process p = xs.top();
-    cout << '\t' << p.arrival << ' ' << p.duration << endl;
+    cout << '\t' << p.arrival << ' ' << p.duration << ' ' << p.time_demand << endl;
     xs.pop();
   }
 }
@@ -48,7 +48,7 @@ void show_processes(list<Process> processes) {
     Process p = xs.front();
     cout << "\tarrival=" << p.arrival << ", duration=" << p.duration
          << ", first_run=" << p.first_run << ", completion=" << p.completion
-         << endl;
+         << ", remain_time_on_slice=" << p.remain_time_on_slice << ", time_demand=" << p.time_demand << endl;
     xs.pop_front();
   }
 }
@@ -67,7 +67,6 @@ void show_processes(list<Process> processes) {
 
 --> return: list<Process>
 */
-
 
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
 
