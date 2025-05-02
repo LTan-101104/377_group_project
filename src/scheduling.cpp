@@ -67,11 +67,33 @@ void show_processes(list<Process> processes) {
 
 --> return: list<Process>
 */
+// check if all queues are empty
+bool check_all_queues_empty(vector<queue<Process>> queues)
+{
+  for (auto & cur : queues){
+    if (!cur.empty()){
+      return false;
+    }
+  }
+  return true;
+}
+//find the index of the highest priority queue which is not empty
+int getHighestPriorityQueue(vector<queue<Process>> queues){
+  int res =-1;
+  for (int i = 0; i < queues.size(); i++){
+    if (!queues[i].empty()){
+      res = i;
+      break;
+    }
+  }
+  return res;
+}
+
 
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
-
   list<Process> complete;
   vector<std::queue<Process>> list_queues; // container for all queues
+  int max_queue_idx = num_queues - 1;
 
   //Assign queues
   for (int i = 0; i < num_queues; i++){
@@ -114,37 +136,57 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
       // TODO: run rr on found queue, update any process that is pushed down as well, this should manage only 1 PROCESS only because after that there might be incoming processes that need to be dealt with first
       //TODO: update time and time_since_reboost accordingly
       //TODO: update priority of process, or pop out if done accordingly
+      queue<Process> ready_queue = list_queues[highest];
+
       //add any new incoming workload during processing
-      while (!workload.empty() && workload.top().arrival <= time){
-        list_queues[0].push(workload.top());
-        workload.pop();
+      while (!workload.empty() && workload.top().arrival <= time) {
+          ready_queue.push(workload.top());
+          workload.pop();
+      }
+      if (!ready_queue.empty()) {
+          Process current = ready_queue.front();
+          ready_queue.pop();
+          if (current.first_run == -1) {
+              current.first_run = time;
+          }
+          //demand check
+          if (current.remain_time_on_slice < current.time_demand)
+          {
+            current.duration -= current.remain_time_on_slice;
+            current.remain_time_on_slice -= current.remain_time_on_slice;
+            time += time_slice;
+          } else
+          {
+             current.duration -= current.time_demand;
+             current.remain_time_on_slice -= current.time_demand;
+             time += time_slice;
+          }
+          if (current.duration > 0 && current.remain_time_on_slice > 0)
+          {
+            ready_queue.push(current);
+            continue;
+          }
+          else if (current.duration > 0 && current.remain_time_on_slice == 0) {
+              if (highest != max_queue_idx) //if not the lowest queue
+              {
+                list_queues[highest + 1].push(current);
+                continue;
+              } else
+              {
+                ready_queue.push(current);
+                continue;
+              }
+          } else { //finished
+              current.completion = time;
+              complete.push_back(current);
+          }
+      } else {
+          time += time_slice;
       }
     }
   }
 }
 
-// check if all queues are empty
-bool check_all_queues_empty(vector<queue<Process>> queues) 
-{
-  for (auto & cur : queues){
-    if (!cur.empty()){
-      return False;
-    }
-  }
-  return True;
-}
-
-//find the index of the highest priority queue which is not empty
-int getHighestPriorityQueue(vector<queue<Process>> queues){
-  int res =-1;
-  for (int i = 0; i < queues.size(); i++){
-    if (!queues[i].empty()){
-      res = i;
-      break;
-    }
-  }
-  return res;
-}
 
 
 int getMax(int a1, int a2){
@@ -158,7 +200,7 @@ int getMax(int a1, int a2){
 
 list<Process> fifo(pqueue_arrival workload) {
   list<Process> complete;
-  int time = 0; 
+  int time = 0;
   while (!workload.empty()) {
     Process p = workload.top();
     // if (cur == NULL){
@@ -179,32 +221,32 @@ list<Process> sjf(pqueue_arrival workload) {
   list<Process> complete;
   pqueue_duration ready_queue;
   int current_time = 0;
-  
+
   while (!workload.empty() || !ready_queue.empty()) {
     while (!workload.empty() && workload.top().arrival <= current_time) {
       Process p = workload.top();
       ready_queue.push(p);
       workload.pop();
     }
-    
+
     if (ready_queue.empty() && !workload.empty()) {
       current_time = workload.top().arrival;
       continue;
     }
-    
+
     if (!ready_queue.empty()) {
       Process p = ready_queue.top();
       ready_queue.pop();
-      
+
       p.first_run = current_time;
       p.completion = current_time + p.duration;
-      
+
       current_time = p.completion;
-      
+
       complete.push_back(p);
     }
   }
-  
+
   return complete;
 }
 
@@ -236,7 +278,7 @@ list<Process> stcf(pqueue_arrival workload) {
       time ++;
       //process is completed
       if(cur.duration == 0){
-        cur.completion = time; 
+        cur.completion = time;
         complete.push_back(cur);
       }
       else{
@@ -252,14 +294,14 @@ list<Process> stcf(pqueue_arrival workload) {
 
 list<Process> rr(pqueue_arrival workload) {//workload is a heap sorted by arrival time
   list<Process> complete; //completed list of Processes
-  std::queue<Process> ready_queue; 
+  std::queue<Process> ready_queue;
   int time = 0;
   while (!workload.empty() || !ready_queue.empty()) {
       while (!workload.empty() && workload.top().arrival <= time) {//move all from workload to ready_queue?
           ready_queue.push(workload.top());
           workload.pop();
       }
-      if (!ready_queue.empty()) {/
+      if (!ready_queue.empty()) {
           Process current = ready_queue.front();
           ready_queue.pop();
           if (current.first_run == -1) {
