@@ -6,7 +6,7 @@
 
 using namespace std;
 
-//test for reading new workload 
+//test for reading new workload
 //read new worload1
 TEST (SchedulingTest, ReadWorkloadNew){
   pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
@@ -41,7 +41,7 @@ TEST (SchedulingTest, ReadWorkloadNew2){
 }
 
 TEST(SchedulingTest, FIFO1) {
-  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
+  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
   list<Process> xs = fifo(pq);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
@@ -55,7 +55,7 @@ TEST(SchedulingTest, MLFQ_test_simple_queue_1){
   int NUM_Q = 1;
   int time_reboost = 10000; // high time reboost to avoid reboosting
   int time_slice = 10;
-  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt")
+  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
   list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
@@ -63,17 +63,17 @@ TEST(SchedulingTest, MLFQ_test_simple_queue_1){
   EXPECT_FLOAT_EQ(r, 10);
 }
 
-// TEST(SchedulingTest, MLFQ_test_simple_queue_2){
-//   //simple case, uniform time demand, no reboost, only 1 num queue
-//   int NUM_Q = 1;
-//   int time_reboost = 10000; // high time reboost to avoid reboosting
-//   int time_slice = 10;
-//   list<Process> xs = read_workload("workloads/new_workload_02.txt");
-//   float t = avg_turnaround(xs);
-//   float r = avg_response(xs);
-//   EXPECT_FLOAT_EQ(t, 20);
-//   EXPECT_FLOAT_EQ(r, 10);
-// }
+TEST(SchedulingTest, MLFQ_test_simple_queue_2){
+  //simple case, uniform time demand, no reboost, only 1 num queue
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  list<Process> xs = read_workload("workloads/new_workload_02.txt");
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  EXPECT_FLOAT_EQ(t, 20);
+  EXPECT_FLOAT_EQ(r, 10);
+}
 
 // TEST(SchedulingTest, MLFQ_test_double_queue_1){
 //   //simple case, uniform time demand, no reboost, only 2 num queue with no gaming
