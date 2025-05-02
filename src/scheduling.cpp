@@ -154,7 +154,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           {
             current.duration -= current.remain_time_on_slice;
             current.remain_time_on_slice -= current.remain_time_on_slice;
-            time += time_slice;
+            time += time_slice; //! may need to adjust based on Piazza question response
           } else
           {
              current.duration -= current.time_demand;
@@ -170,10 +170,12 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
               if (highest != max_queue_idx) //if not the lowest queue
               {
                 list_queues[highest + 1].push(current);
+                current.remain_time_on_slice = time_slice; //reset slice allotment
                 continue;
               } else
               {
                 ready_queue.push(current);
+                current.remain_time_on_slice = time_slice; //reset slice allotment
                 continue;
               }
           } else { //finished
