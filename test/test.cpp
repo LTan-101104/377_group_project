@@ -20,6 +20,18 @@ TEST(SchedulingTest, FIFO1) {
   EXPECT_FLOAT_EQ(r, 10);
 }
 
+//list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice)
+TEST(SchedulingTest, MLFQ_test_simple_queue_1){
+  //simple case, uniform time demand, no reboost, only 1 num queue
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  list<Process> xs = read_workload("workloads/new_workload_01.txt");
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  EXPECT_FLOAT_EQ(t, 20);
+  EXPECT_FLOAT_EQ(r, 10);
+}
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
