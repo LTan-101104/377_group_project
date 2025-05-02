@@ -175,6 +175,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
               } else
               {
                 ready_queue.push(current);
+                current.remain_time_on_slice = time_slice; //reset slice allotment
                 continue;
               }
           } else { //finished
