@@ -9,7 +9,7 @@ using namespace std;
 //test for reading new workload
 //read new worload1
 TEST (SchedulingTest, ReadWorkloadNew){
-  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
+  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
   EXPECT_EQ(pq.size(), 3);
   while (!pq.empty()){
     Process p = pq.top();
@@ -23,7 +23,7 @@ TEST (SchedulingTest, ReadWorkloadNew){
 
 //test for reading new workload2
 TEST (SchedulingTest, ReadWorkloadNew2){
-  pqueue_arrival pq = read_workload("workloads/new_workload_02.txt");
+  pqueue_arrival pq = read_workload("workloads/workload_02.txt");
   EXPECT_EQ(pq.size(), 3);
   Process p1 = pq.top();
   EXPECT_EQ(p1.arrival, 0);
@@ -41,21 +41,22 @@ TEST (SchedulingTest, ReadWorkloadNew2){
 }
 
 TEST(SchedulingTest, FIFO1) {
-  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
+  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
   list<Process> xs = fifo(pq);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
   EXPECT_FLOAT_EQ(t, 20);
   EXPECT_FLOAT_EQ(r, 10);
 }
-
+//!MLFQ
+//! varied arrival time on single queue testing
 //list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice)
 TEST(SchedulingTest, MLFQ_test_simple_queue_1){
   //simple case, uniform time demand, no reboost, only 1 num queue
   int NUM_Q = 1;
   int time_reboost = 10000; // high time reboost to avoid reboosting
   int time_slice = 10;
-  pqueue_arrival pq = read_workload("workloads/new_workload_01.txt");
+  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
   list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
@@ -63,17 +64,90 @@ TEST(SchedulingTest, MLFQ_test_simple_queue_1){
   EXPECT_FLOAT_EQ(r, 10);
 }
 
-TEST(SchedulingTest, MLFQ_test_simple_queue_2){
-  //simple case, uniform time demand, no reboost, only 1 num queue
+//! varied reboost test, if num_queue = 0, this should not interfere
+TEST(SchedulingTest, MLFQ_test_time_boost_1){
   int NUM_Q = 1;
-  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_reboost = 5; 
   int time_slice = 10;
-  list<Process> xs = read_workload("workloads/new_workload_02.txt");
+  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
   EXPECT_FLOAT_EQ(t, 20);
   EXPECT_FLOAT_EQ(r, 10);
 }
+
+//more complicate input
+TEST(SchedulingTest, MLFQ_test_simple_queue_2){
+  //simple case, uniform time demand, no reboost, only 1 num queue
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  pqueue_arrival pq = read_workload("workloads/workload_02.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  ASSERT_NEAR(56.666667f, t, 0.01);
+  EXPECT_FLOAT_EQ(t, 56.67f);
+  EXPECT_FLOAT_EQ(r, 10);
+}
+
+TEST(SchedulingTest, MLFQ_test_time_boost_2){
+  //simple case, uniform time demand, no reboost, only 1 num queue
+  int NUM_Q = 1;
+  int time_reboost = 10; 
+  int time_slice = 10;
+  pqueue_arrival pq = read_workload("workloads/workload_02.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  ASSERT_NEAR(56.666667f, t, 0.01);
+  EXPECT_FLOAT_EQ(t, 56.67f);
+  EXPECT_FLOAT_EQ(r, 10);
+}
+
+// this time input will have varied arrival time
+TEST(SchedulingTest, MLFQ_test_simple_queue_3){
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  pqueue_arrival pq = read_workload("workloads/workload_03.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  EXPECT_FLOAT_EQ(t, 50);
+  ASSERT_NEAR(r, 0.33333f, 0.01);
+}
+
+//!test difference time slice
+//all current test used time_slice < time_demand so not account for the edge cases of time demand yet
+TEST(SchedulingTest, MLFQ_test_time_slice_1){
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 5; //time slice < time demand so will always take the time slice
+  pqueue_arrival pq = read_workload("workloads/workload_01.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  ASSERT_NEAR(r, 7.5f, 0.1);
+  EXPECT_FLOAT_EQ(t, 25);
+}
+
+TEST(SchedulingTest, MLFQ_test_time_slice_2){
+  int NUM_Q = 1;
+  int time_reboost = 10000; // high time reboost to avoid reboosting
+  int time_slice = 5; //time slice < time demand so will always take the time slice
+  pqueue_arrival pq = read_workload("workloads/workload_02.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  ASSERT_NEAR(r, 7.5f, 0.1);
+  ASSERT_NEAR(t, 58.3333f, 0.1);
+}
+
+
+
+
 
 // TEST(SchedulingTest, MLFQ_test_double_queue_1){
 //   //simple case, uniform time demand, no reboost, only 2 num queue with no gaming
