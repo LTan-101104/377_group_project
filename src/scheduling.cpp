@@ -172,7 +172,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           if (current.remain_time_on_slice < current.time_demand)
           {
             current.duration -= current.remain_time_on_slice;
-            current.remain_time_on_slice -= current.remain_time_on_slice;
+            current.remain_time_on_slice = 0; //running out of time on slice
           } else
           {
              current.duration -= current.time_demand;
@@ -182,17 +182,21 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
 
           if (current.duration > 0)
           {
-            if (current.remain_time_on_slice == 0)
-            {
+            if (current.remain_time_on_slice == 0){
+              current.remain_time_on_slice = time_slice; //reset slice allotment
+              if (highest == num_queues - 1) {
+                list_queues[highest].push(current);
+                cout << "at bottom queue already, pushed back to current bottom queue" << endl;
+              } else {
                 list_queues[highest + 1].push(current);
                 cout << "pushed to lower queue" << endl;
-                current.remain_time_on_slice = time_slice; //reset slice allotment
-                continue;
+              }
+              continue;
             } else
             {
+              current.remain_time_on_slice = time_slice; //reset slice allotment
               ready_queue.push(current);
               cout << "stay on current queue" << endl;
-              current.remain_time_on_slice = time_slice; //reset slice allotment
               continue;
             }
           } else { //finished
@@ -203,6 +207,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           }
       }
       time += time_slice;
+      time_since_reboost += time_slice;
     }
   }
   cout << "MLFQ completed";

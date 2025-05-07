@@ -87,6 +87,8 @@ TEST(SchedulingTest, MLFQ_test_simple_queue_2){
   list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
+  printf("%d", t);
+  printf("%d", r);
   ASSERT_NEAR(56.666667f, t, 0.01);
   EXPECT_FLOAT_EQ(t, 56.67f);
   EXPECT_FLOAT_EQ(r, 10);
