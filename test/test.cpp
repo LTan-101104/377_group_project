@@ -150,21 +150,76 @@ TEST(SchedulingTest, MLFQ_test_time_slice_2){
   EXPECT_FLOAT_EQ(t, 55);
 }
 
+//!new added tests for multiple queues
+
+TEST(SchedulingTest, MLFQ_test_double_queue_1){
+  //simple case, uniform time demand, no reboost, only 2 num queue with no gaming
+  int NUM_Q = 2;
+  int time_reboost = 1000000; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  pqueue_arrival pq = read_workload("workloads/workload_02.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  EXPECT_FLOAT_EQ(t, 50);
+  EXPECT_FLOAT_EQ(r, 10.0f);
+}
+
+//2 queue with low reboost time
+TEST(SchedulingTest, MLFQ_test_double_queue_reboost_1){
+  int NUM_Q = 2;
+  int time_reboost = 40; // high time reboost to avoid reboosting
+  int time_slice = 10;
+  pqueue_arrival pq = read_workload("workloads/workload_02A.txt");
+  list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+  float t = avg_turnaround(xs);
+  float r = avg_response(xs);
+  EXPECT_FLOAT_EQ(t, 57.5f);
+  EXPECT_FLOAT_EQ(r, 15);
+}
+
+//3 queue with reboost
+TEST(SchedulingTest, MLFQ_test_triple_queue_reboost_mid) {
+    int NUM_Q = 3;
+    int time_reboost = 50;
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_03B.txt");
+    list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 61.25f);  // Expected turnaround time with 3 queues
+    EXPECT_FLOAT_EQ(r, 11.25f);   // Expected response time with 3 queues
+}
+
+
+TEST(SchedulingTest, MLFQ_test_four_queue_same_workload) {
+    int NUM_Q = 4;
+    int time_reboost = 50;
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_03B.txt");
+    list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 58.75f);  // Expected better turnaround with more queues
+    EXPECT_FLOAT_EQ(r, 12.5f);   // Response time might remain same
+}
 
 
 
+// Test with very low reboost time - frequent reset of all processes to top queue
+TEST(SchedulingTest, MLFQ_test_low_reboost) {
+    int NUM_Q = 3;
+    int time_reboost = 20;  // Low reboost time
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_02A.txt");
+    list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 52.5f);  // Expected turnaround with frequent reboost
+    EXPECT_FLOAT_EQ(r, 15.0f);  // Expected response time
+}
 
-// TEST(SchedulingTest, MLFQ_test_double_queue_1){
-//   //simple case, uniform time demand, no reboost, only 2 num queue with no gaming
-//   int NUM_Q = 2;
-//   int time_reboost = 10000; // high time reboost to avoid reboosting
-//   int time_slice = 10;
-//   list<Process> xs = read_workload("workloads/new_workload_02.txt");
-//   float t = avg_turnaround(xs);
-//   float r = avg_response(xs);
-//   EXPECT_FLOAT_EQ(t, 56.666667f);
-//   EXPECT_FLOAT_EQ(r, 10.0f);
-// }
+
 
 // TEST(SchedulingTest, MLFQ_test_double_queue_gaming_1){
 //   //simple case, uniform time demand, no reboost, only 2 num queue with gaming
