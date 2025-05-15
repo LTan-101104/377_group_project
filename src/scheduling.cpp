@@ -90,7 +90,23 @@ int getHighestPriorityQueue(vector<queue<Process>> queues){
   return res;
 }
 
+int getMax(int a1, int a2){
+  if (a1 < a2){
+    return a2;
+  }
+  else{
+    return a1;
+  }
+}
 
+int getMin(int a1, int a2){
+  if (a1 < a2){
+    return a1;
+  }
+  else{
+    return a2;
+  }
+}
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
   show_workload(workload);
   list<Process> complete;
@@ -111,7 +127,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
 
   while (!workload.empty() || !check_all_queues_empty(list_queues)){
     //cout << workload.empty() << endl;
-    cout << "loop instance" << endl;
+    // cout << "loop instance" << endl;
     //check if need to reboost
     //!Assuming reboost and adding new processes will happen at the same time and not cost time
     if (time_since_reboost >= time_reboost){
@@ -122,7 +138,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           list_queues[i].pop();
         }
       }
-      cout << "reboosted" << endl;
+      // cout << "reboosted" << endl;
     }
     //DEBUG
     //cerr << workload.size() << endl;
@@ -132,7 +148,7 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
     while (!workload.empty() && workload.top().arrival <= time){
       Process to_add = workload.top();
       workload.pop();
-      to_add.remain_time_on_slice = time_slice;
+      to_add.remain_time_on_slice = time_slice; //! first time will be initilialized to time_slice
       list_queues[0].push(to_add);
     }
 
@@ -145,70 +161,81 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
         continue;
       }
 
-      // TODO: run rr on found queue, update any process that is pushed down as well, this should manage only 1 PROCESS only because after that there might be incoming processes that need to be dealt with first
-      //TODO: update time and time_since_reboost accordingly
-      //TODO: update priority of process, or pop out if done accordingly
       queue<Process>& ready_queue = list_queues[highest];
-      cout << "ready queue before popping has size:" << ready_queue.size() << endl;
-      cout << "queue no. : " << highest << endl;
 
       //add any new incoming workload during processing
       while (!workload.empty() && workload.top().arrival <= time) {
           ready_queue.push(workload.top());
           workload.pop();
-          cout << "workload added" << endl;
       }
       int actual_time_used;
       if (!ready_queue.empty()) {
 
           Process current = ready_queue.front();
           ready_queue.pop();
-          cout << "ready queue has size: " << ready_queue.size() << endl;
+          // cout << "ready queue has size: " << ready_queue.size() << endl;
+          //!first time the process runs
+          bool is_first_run;
           if (current.first_run == -1) {
               current.first_run = time;
           }
           //demand check
-          cout << "current process has duration " << current.duration << " and demand " << current.time_demand << " with remaining time " << current.remain_time_on_slice << " on slice " << highest << endl;
-
-
+          // cout << "current process has duration " << current.duration << " and demand " << current.time_demand << " with remaining time " << current.remain_time_on_slice << " on slice " << highest << endl;
+          //!case 1: time remain less than time demand, actual time used must be remain_time_on_slice
           if (current.remain_time_on_slice < current.time_demand)
           {
+            if (current.time_demand == 9){
+              cout << "Will run remain_time_on_slice: " << current.remain_time_on_slice << endl;
+            }
             actual_time_used = current.remain_time_on_slice;
             current.duration -= current.remain_time_on_slice;
             current.remain_time_on_slice = 0; //running out of time on slice
           } else
           {
+            //!case 2: time remain greater than or equal to time demand, actual time used must be time demand
+            if (current.time_demand == 9){
+              cout << "Time remain_on_slice: " << current.remain_time_on_slice << endl;
+              cout << "Will run time_demand: " << current.time_demand << endl;
+            }
             actual_time_used = current.time_demand;
             current.duration -= current.time_demand;
             current.remain_time_on_slice -= current.time_demand;
+            if (current.time_demand == 9){
+              cout << "Time remain_on_slice after cut: " << current.remain_time_on_slice << endl;
+            }
           }
-          cout << "current process has duration " << current.duration << " left" << endl;
+          // cout << "current process has duration " << current.duration << " left" << endl;
 
           if (current.duration > 0)
           {
             if (current.remain_time_on_slice == 0){
+              //!push down a queues because not finish and remain time on slice is 0
+              // current.remain_time_on_slice = getMin(current.time_demand, time_slice); //reset slice allotment
               current.remain_time_on_slice = time_slice; //reset slice allotment
               if (highest == num_queues - 1) {
-                list_queues[highest].push(current);
-                cout << "at bottom queue already, pushed back to current bottom queue" << endl;
+                list_queues[highest].push(current); //if already at the bottom, just be at the bottom
               } else {
-                list_queues[highest + 1].push(current);
-                cout << "pushed to lower queue" << endl;
+                list_queues[highest + 1].push(current); //if not at the bottom, push to lower queue
               }
             } else
             {
-              current.remain_time_on_slice = time_slice; //reset slice allotment
+              //!keep on the same queue
+              // current.remain_time_on_slice = time_slice; //reset slice allotment
               ready_queue.push(current);
-              cout << "stay on current queue" << endl;
             }
-          } else { //finished
-              current.completion = time + actual_time_used;
-              cout << "process completed. First run: " << current.first_run << ", completion: " << current.completion << endl;
+          } else { //! process finished
+              //TODO: possible bug here
+              if (current.duration == 0){
+                current.completion = time + actual_time_used;
+              }
+              else {
+                //duration < 0 means that actual_time_used is redundant
+                current.completion = time - current.duration;
+              }
               complete.push_back(current);
-              cout << ready_queue.size() << " items left on current queue" << endl;
           }
       }
-      time += actual_time_used;
+      time += actual_time_used; // even if process finish earlier (actua_time_used is redundant), we still run the whole actual_time_used
       time_since_reboost += actual_time_used;
     }
   }
@@ -216,16 +243,6 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
   return complete;
 }
 
-
-
-int getMax(int a1, int a2){
-  if (a1 < a2){
-    return a2;
-  }
-  else{
-    return a1;
-  }
-}
 
 list<Process> fifo(pqueue_arrival workload) {
   list<Process> complete;
