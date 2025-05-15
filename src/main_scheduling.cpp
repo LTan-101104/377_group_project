@@ -56,10 +56,14 @@ int main(int argc, char* argv[]) {
   const char* filename[] = {"main_workload/workload_01.txt", "main_workload/workload_02.txt", "main_workload/workload_03.txt", "main_workload/workload_04.txt", "main_workload/workload_05.txt"};
   for (const char* filename : filename){
     cout << "___________________________________Running on " << filename << "___________________________________" << endl;
+    cout << endl;
+    cout << endl;
     pqueue_arrival workload = read_workload(filename);
     compare_STCF(workload);
     for (int time_slice : time_slice){
+      cout << endl;
       compare_RR(workload, time_slice);
+      cout << endl;
       for (int num_queues : num_queues){
         for (int time_reboost : time_reboost){
           compare_MLFQ(workload, time_reboost, num_queues, time_slice);
