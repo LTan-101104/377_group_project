@@ -216,7 +216,6 @@ TEST(SchedulingTest, MLFQ_test_low_reboost) {
     EXPECT_FLOAT_EQ(r, 15.0f);  // Expected response time
 }
 
-//TODO: need another test for when time_demand < time slice
 
 TEST(SchedulingTest, MLFQ_anti_gaming2_queues) {
     int NUM_Q = 2;
