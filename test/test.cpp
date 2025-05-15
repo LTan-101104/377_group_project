@@ -112,7 +112,6 @@ TEST(SchedulingTest, MLFQ_test_simple_queue_3){
   int time_slice = 10; // first workload will have time demand < time slice
   pqueue_arrival pq = read_workload("workloads/workload_03A.txt");
   list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
-  show_processes(xs);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
   ASSERT_NEAR(t, 23.3334f, 0.01);
@@ -138,9 +137,7 @@ TEST(SchedulingTest, MLFQ_test_time_slice_2){
   int time_reboost = 10000; // high time reboost to avoid reboosting
   int time_slice = 5; //time slice < time demand so will always take the time slice
   pqueue_arrival pq = read_workload("workloads/workload_02.txt");
-  show_workload(pq);
   list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
-  show_processes(xs);
   float t = avg_turnaround(xs);
   float r = avg_response(xs);
   EXPECT_FLOAT_EQ(r, 5);
@@ -223,7 +220,6 @@ TEST(SchedulingTest, MLFQ_anti_gaming2_queues) {
     int time_slice = 10;
     pqueue_arrival pq = read_workload("workloads/workload_03C.txt");
     list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
-    show_processes(xs);
     float t = avg_turnaround(xs);
     float r = avg_response(xs);
     EXPECT_FLOAT_EQ(t, 15);  // Expected turnaround with frequent reboost
