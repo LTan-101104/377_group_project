@@ -239,8 +239,6 @@ TEST(SchedulingTest, Edge_case) {
     EXPECT_FLOAT_EQ(r, 0);  // Expected response time
 }
 TEST(SchedulingTest, Edge_case_rr) {
-    int NUM_Q = 2;
-    int time_reboost = 20000000;  // Low reboost time
     int time_slice = 10;
     pqueue_arrival pq = read_workload("workloads/workload_06.txt");
     list<Process> xs = rr(pq, time_slice);
