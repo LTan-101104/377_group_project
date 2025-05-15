@@ -218,17 +218,19 @@ TEST(SchedulingTest, MLFQ_test_low_reboost) {
 
 //TODO: need another test for when time_demand < time slice
 
-// TEST(SchedulingTest, MLFQ_test_double_queue_gaming_1){
-//   //simple case, uniform time demand, no reboost, only 2 num queue with gaming
-//   int NUM_Q = 2;
-//   int time_reboost = 10000; // high time reboost to avoid reboosting
-//   int time_slice = 10;
-//   list<Process> xs = read_workload("workloads/new_workload_03 .txt");
-//   float t = avg_turnaround(xs);
-//   float r = avg_response(xs);
-//   EXPECT_FLOAT_EQ(t, 56.666667f);
-//   EXPECT_FLOAT_EQ(r, 10.0f);
-// }
+TEST(SchedulingTest, MLFQ_anti_gaming2_queues) {
+    int NUM_Q = 2;
+    int time_reboost = 20000000;  // Low reboost time
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_03C.txt");
+    list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+    show_processes(xs);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 13.5);  // Expected turnaround with frequent reboost
+    EXPECT_FLOAT_EQ(r, 2.5);  // Expected response time
+}
+
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

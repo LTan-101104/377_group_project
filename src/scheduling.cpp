@@ -112,15 +112,12 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
   list<Process> complete;
   vector<std::queue<Process>> list_queues; // container for all queues
   int max_queue_idx = num_queues - 1;
-  cout << "time slice: " << time_slice << endl;
 
   //Assign queues
   for (int i = 0; i < num_queues; i++){
     std::queue<Process> cur_queue;
     list_queues.push_back(cur_queue);
-    cout << "queue num " << i << " created" << endl;
   }
-  cerr << "queues assigned" << endl;
 
   int time = 0; // track time flow
   int time_since_reboost = 0;
@@ -157,7 +154,6 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
       if (highest == -1){
         time += time_slice;
         time_since_reboost += time_slice;
-        cout << "skipped" << endl;
         continue;
       }
 
@@ -183,26 +179,16 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           // cout << "current process has duration " << current.duration << " and demand " << current.time_demand << " with remaining time " << current.remain_time_on_slice << " on slice " << highest << endl;
           //!case 1: time remain less than time demand, actual time used must be remain_time_on_slice
           if (current.remain_time_on_slice < current.time_demand)
-          {
-            if (current.time_demand == 9){
-              cout << "Will run remain_time_on_slice: " << current.remain_time_on_slice << endl;
-            }
+          { 
             actual_time_used = current.remain_time_on_slice;
             current.duration -= current.remain_time_on_slice;
             current.remain_time_on_slice = 0; //running out of time on slice
           } else
           {
             //!case 2: time remain greater than or equal to time demand, actual time used must be time demand
-            if (current.time_demand == 9){
-              cout << "Time remain_on_slice: " << current.remain_time_on_slice << endl;
-              cout << "Will run time_demand: " << current.time_demand << endl;
-            }
             actual_time_used = current.time_demand;
             current.duration -= current.time_demand;
             current.remain_time_on_slice -= current.time_demand;
-            if (current.time_demand == 9){
-              cout << "Time remain_on_slice after cut: " << current.remain_time_on_slice << endl;
-            }
           }
           // cout << "current process has duration " << current.duration << " left" << endl;
 
@@ -239,7 +225,6 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
       time_since_reboost += actual_time_used;
     }
   }
-  cout << "MLFQ completed";
   return complete;
 }
 
