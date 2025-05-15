@@ -286,10 +286,12 @@ list<Process> stcf(pqueue_arrival workload) {
   pqueue_duration ready;
   int time = 0;
   while (!workload.empty() || !ready.empty()){
+    
     while (!workload.empty() && workload.top().arrival <= time){
       ready.push(workload.top());
       workload.pop();
     }
+
     if (!ready.empty()){
       Process cur = ready.top();
       ready.pop();

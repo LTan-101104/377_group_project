@@ -51,6 +51,6 @@ void compare_MLFQ_RR(string filename, int time_reboost, int num_queues, int time
   list<Process> mlfq_complete = MLFQ(workload, time_reboost, num_queues, time_slice);
   list<Process> rr_complete = rr(workload);
   cout << "**MLFQ: " << endl << "- Average turnaround time: " << avg_turnaround(mlfq_complete) << endl << "- Average response time: " << avg_response(mlfq_complete) << endl;
-  cout << "**RR: " << endl << "- Average turnaround time: " << avg_turnaround(stcf_complete) << endl << "- Average response time: " << avg_response(stcf_complete) << endl;
+  cout << "**RR: " << endl << "- Average turnaround time: " << avg_turnaround(rr_complete) << endl << "- Average response time: " << avg_response(rr_complete) << endl;
 }
 
