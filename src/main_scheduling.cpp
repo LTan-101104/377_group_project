@@ -36,3 +36,21 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
+
+void compare_MLFQ_STCF(string filename, int time_reboost, int num_queues, int time_slice){
+  pqueue_arrival workload = read_workload(filename);
+  list<Process> mlfq_complete = MLFQ(workload, time_reboost, num_queues, time_slice);
+  list<Process> stcf_complete = stcf(workload);
+  cout << "**MLFQ: " << endl << "- Average turnaround time: " << avg_turnaround(mlfq_complete) << endl << "- Average response time: " << avg_response(mlfq_complete) << endl;
+  cout << "**STCF: " << endl << "- Average turnaround time: " << avg_turnaround(stcf_complete) << endl << "- Average response time: " << avg_response(stcf_complete) << endl;
+}
+
+
+void compare_MLFQ_RR(string filename, int time_reboost, int num_queues, int time_slice){
+  pqueue_arrival workload = read_workload(filename);
+  list<Process> mlfq_complete = MLFQ(workload, time_reboost, num_queues, time_slice);
+  list<Process> rr_complete = rr(workload);
+  cout << "**MLFQ: " << endl << "- Average turnaround time: " << avg_turnaround(mlfq_complete) << endl << "- Average response time: " << avg_response(mlfq_complete) << endl;
+  cout << "**RR: " << endl << "- Average turnaround time: " << avg_turnaround(stcf_complete) << endl << "- Average response time: " << avg_response(stcf_complete) << endl;
+}
+
