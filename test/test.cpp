@@ -226,10 +226,33 @@ TEST(SchedulingTest, MLFQ_anti_gaming2_queues) {
     show_processes(xs);
     float t = avg_turnaround(xs);
     float r = avg_response(xs);
-    EXPECT_FLOAT_EQ(t, 13.5);  // Expected turnaround with frequent reboost
+    EXPECT_FLOAT_EQ(t, 15);  // Expected turnaround with frequent reboost
     EXPECT_FLOAT_EQ(r, 2.5);  // Expected response time
 }
 
+//for countering time slice/ actual time runs exceed finish time
+TEST(SchedulingTest, Edge_case) {
+    int NUM_Q = 2;
+    int time_reboost = 20000000;  // Low reboost time
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_06.txt");
+    list<Process> xs = MLFQ(pq, time_reboost, NUM_Q, time_slice);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 7);  // Expected turnaround with frequent reboost
+    EXPECT_FLOAT_EQ(r, 0);  // Expected response time
+}
+TEST(SchedulingTest, Edge_case_rr) {
+    int NUM_Q = 2;
+    int time_reboost = 20000000;  // Low reboost time
+    int time_slice = 10;
+    pqueue_arrival pq = read_workload("workloads/workload_06.txt");
+    list<Process> xs = rr(pq, time_slice);
+    float t = avg_turnaround(xs);
+    float r = avg_response(xs);
+    EXPECT_FLOAT_EQ(t, 7);  // Expected turnaround with frequent reboost
+    EXPECT_FLOAT_EQ(r, 0);  // Expected response time
+}
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

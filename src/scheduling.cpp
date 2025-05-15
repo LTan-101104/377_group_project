@@ -25,7 +25,7 @@ pqueue_arrival read_workload(string filename) { //TODO: recheck
       p.completion = -1;
       p.remain_time_on_slice = -1; //initialize remain time on slice
       workload.push(p);
-      cout << "adding workload:" << p.arrival << " " << p.duration << " " << p.time_demand << endl;
+      // cout << "adding workload:" << p.arrival << " " << p.duration << " " << p.time_demand << endl;
     }
   }
   file.close();
@@ -108,7 +108,7 @@ int getMin(int a1, int a2){
   }
 }
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice){
-  show_workload(workload);
+  // show_workload(workload);
   list<Process> complete;
   vector<std::queue<Process>> list_queues; // container for all queues
   int max_queue_idx = num_queues - 1;
@@ -171,12 +171,12 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           ready_queue.pop();
           // cout << "ready queue has size: " << ready_queue.size() << endl;
           //!first time the process runs
-          bool is_first_run;
           if (current.first_run == -1) {
               current.first_run = time;
           }
           //demand check
           // cout << "current process has duration " << current.duration << " and demand " << current.time_demand << " with remaining time " << current.remain_time_on_slice << " on slice " << highest << endl;
+          int curDuration = current.duration;
           //!case 1: time remain less than time demand, actual time used must be remain_time_on_slice
           if (current.remain_time_on_slice < current.time_demand)
           { 
@@ -196,7 +196,6 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
           {
             if (current.remain_time_on_slice == 0){
               //!push down a queues because not finish and remain time on slice is 0
-              // current.remain_time_on_slice = getMin(current.time_demand, time_slice); //reset slice allotment
               current.remain_time_on_slice = time_slice; //reset slice allotment
               if (highest == num_queues - 1) {
                 list_queues[highest].push(current); //if already at the bottom, just be at the bottom
@@ -206,17 +205,15 @@ list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, in
             } else
             {
               //!keep on the same queue
-              // current.remain_time_on_slice = time_slice; //reset slice allotment
               ready_queue.push(current);
             }
           } else { //! process finished
-              //TODO: possible bug here
               if (current.duration == 0){
                 current.completion = time + actual_time_used;
               }
               else {
                 //duration < 0 means that actual_time_used is redundant
-                current.completion = time - current.duration;
+                current.completion = time + curDuration;
               }
               complete.push_back(current);
           }
@@ -325,7 +322,7 @@ list<Process> stcf(pqueue_arrival workload) {
   return complete;
 }
 
-list<Process> rr(pqueue_arrival workload) {//workload is a heap sorted by arrival time
+list<Process> rr(pqueue_arrival workload, int time_slice) {//workload is a heap sorted by arrival time
   list<Process> complete; //completed list of Processes
   std::queue<Process> ready_queue;
   int time = 0;
@@ -340,14 +337,21 @@ list<Process> rr(pqueue_arrival workload) {//workload is a heap sorted by arriva
           if (current.first_run == -1) {
               current.first_run = time;
           }
-          current.duration--;
-          time++;
+          int origin = current.duration;          
+          current.duration -= time_slice;
           if (current.duration > 0) {
               ready_queue.push(current);
           } else {
-              current.completion = time;
+              if (current.duration == 0){
+                current.completion = time + time_slice;
+              }
+              else {
+                //duration < 0 means that actual_time_used is redundant
+                current.completion = time + origin;
+              }
               complete.push_back(current);
           }
+          time = time + time_slice;
       } else {
           time++;
       }

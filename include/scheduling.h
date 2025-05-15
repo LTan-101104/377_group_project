@@ -46,7 +46,7 @@ void show_processes(list<Process> processes);
 list<Process> fifo(pqueue_arrival workload);
 list<Process> sjf(pqueue_arrival workload);
 list<Process> stcf(pqueue_arrival workload);
-list<Process> rr(pqueue_arrival workload);
+list<Process> rr(pqueue_arrival workload, int time_slice);
 list<Process> MLFQ(pqueue_arrival workload, int time_reboost, int num_queues, int time_slice);
 
 float avg_turnaround(list<Process> processes);
