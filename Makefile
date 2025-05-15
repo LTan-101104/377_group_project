@@ -9,18 +9,18 @@ TESTBIN = scheduling_test
 DEBUG = -DDEBUGMODE
 
 IDIR = include
-CC = clang++
-CFLAGS = -I$(IDIR) -I/opt/homebrew/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -Wall $(DEBUG) -Wextra -g -pthread -std=c++17
+CC = g++
+CFLAGS = -I$(IDIR) -Wall $(DEBUG) -Wextra -g -pthread
 ODIR = obj
 SDIR = src
 LDIR = lib
 TDIR = test
 LIBS = -lm
-XXLIBS = $(LIBS) -L/opt/homebrew/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lstdc++ -lgtest -lgtest_main -lpthread
+XXLIBS = $(LIBS) -lstdc++ -lgtest -lgtest_main -lpthread
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 MOBJ = $(patsubst %,$(ODIR)/%,$(_MOBJ))
-TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ))
+TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ)) 
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
