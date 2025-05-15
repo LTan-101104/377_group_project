@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
   int time_reboost[] = {20, 100};
   int num_queues[] = {1,4};
   int time_slice[] = {5, 10};
-  const char* filename[] = {"main_workload/workload_01.txt", "main_workload/workload_02.txt", "main_workload/workload_03.txt", "main_workload/workload_04.txt", "main_workload/workload_05.txt"};
+  const char* filename[] = {"main_workload/workload_01.txt", "main_workload/workload_02.txt", "main_workload/workload_03.txt", "main_workload/workload_04.txt", "main_workload/workload_05.txt", "main_workload/workload_06.txt"};
   for (const char* filename : filename){
     cout << "___________________________________Running on " << filename << "___________________________________" << endl;
     cout << endl;
